@@ -1,86 +1,145 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog de Receitas</title>
+    <title>FredFlintons Coin</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f8f8;
+            background: #f5f5dc;
+            color: #333;
         }
         header {
-            background-color: #ff6f61;
+            background: #ff7f50;
             color: white;
             padding: 20px;
             text-align: center;
+        }
+        header img {
+            width: 100px;
+            border-radius: 50%;
         }
         nav {
-            background-color: #ff9f80;
-            padding: 10px;
-            text-align: center;
+            background: #333;
+            display: flex;
+            justify-content: center;
         }
         nav a {
-            margin: 0 15px;
             color: white;
+            padding: 14px 20px;
             text-decoration: none;
-            font-weight: bold;
+            text-transform: uppercase;
+        }
+        nav a:hover {
+            background: #555;
         }
         section {
-            padding: 20px;
-            max-width: 800px;
-            margin: auto;
+            padding: 40px;
+            text-align: center;
         }
-        article {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .roadmap {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .roadmap div {
+            background: #fff8dc;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+            width: 200px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .game button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
         }
         footer {
-            background-color: #ff6f61;
+            background: #ff7f50;
             color: white;
             text-align: center;
-            padding: 15px;
-            position: relative;
-            bottom: 0;
-            width: 100%;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Blog de Receitas Deliciosas</h1>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBQYWludC5ORVQgdjMuNS4xMfEgaZUAAABDSURBVHja7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgHAdAAAV5rB9UAAAAASUVORK5CYII=" alt="FredFlintons Logo">
+        <h1>FredFlintons Coin</h1>
+        <p>The prehistoric token of the future!</p>
     </header>
     <nav>
-        <a href="#receitas">Receitas</a>
-        <a href="#sobre">Sobre</a>
-        <a href="#contato">Contato</a>
+        <a href="#about">About</a>
+        <a href="#token">Token Info</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#game">Mini-Game</a>
     </nav>
-    <section id="receitas">
-        <h2>Receitas Recentes</h2>
-        <article>
-            <h3>Bolo de Chocolate</h3>
-            <p>Um bolo fofinho e delicioso, perfeito para qualquer ocasião!</p>
-        </article>
-        <article>
-            <h3>Salada Colorida</h3>
-            <p>Fresca e nutritiva, cheia de cores e sabores.</p>
-        </article>
+
+    <section id="about">
+        <h2>About FredFlintons</h2>
+        <p>FredFlintons Coin is a fun, prehistoric-themed cryptocurrency inspired by the legendary Fred Flintstone. Join our Stone Age revolution!</p>
     </section>
-    <section id="sobre">
-        <h2>Sobre Nós</h2>
-        <p>Somos apaixonados por comida e queremos compartilhar receitas simples e gostosas com você!</p>
+
+    <section id="token">
+        <h2>Token Info</h2>
+        <p>Total Supply: 1,000,000 FRED</p>
+        <p>Blockchain: FlintChain</p>
+        <p>Use FRED to trade, play games, and unlock special prehistoric bonuses!</p>
     </section>
-    <section id="contato">
-        <h2>Contato</h2>
-        <p>Envie suas dúvidas ou sugestões para: contato@blogdereceitas.com</p>
+
+    <section id="roadmap">
+        <h2>Roadmap</h2>
+        <div class="roadmap">
+            <div>
+                <h3>Q1 2025</h3>
+                <p>Project Launch & Website</p>
+            </div>
+            <div>
+                <h3>Q2 2025</h3>
+                <p>Token Distribution & NFT Release</p>
+            </div>
+            <div>
+                <h3>Q3 2025</h3>
+                <p>Mini-Game Integration</p>
+            </div>
+            <div>
+                <h3>Q4 2025</h3>
+                <p>Global Community Expansion</p>
+            </div>
+        </div>
     </section>
+
+    <section id="game" class="game">
+        <h2>Mine Your FRED Tokens!</h2>
+        <p>Click the stone to mine FRED tokens!</p>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBQYWludC5ORVQgdjMuNS4xMfEgaZUAAABDSURBVHja7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgHAdAAAV5rB9UAAAAASUVORK5CYII=" alt="Stone" id="stone" style="width:150px; cursor:pointer;">
+        <p>Tokens mined: <span id="counter">0</span> FRED</p>
+        <button onclick="resetCounter()">Reset</button>
+    </section>
+
     <footer>
-        &copy; 2025 Blog de Receitas. Todos os direitos reservados.
+        <p>© 2025 FredFlintons Coin. All rights reserved.</p>
     </footer>
+
+    <script>
+        let counter = 0;
+        const stone = document.getElementById('stone');
+        const counterEl = document.getElementById('counter');
+
+        stone.addEventListener('click', () => {
+            counter += Math.floor(Math.random() * 10) + 1;
+            counterEl.textContent = counter;
+        });
+
+        function resetCounter() {
+            counter = 0;
+            counterEl.textContent = counter;
+        }
+    </script>
 </body>
 </html>
+
