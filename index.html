@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FREDDY (FRDY) — Nightmare Memecoin</title>
+<meta name="description" content="FREDDY (FRDY) — A dark/horror memecoin inspired parody. Play the Nightmare Runner, generate memes, and explore tokenomics (Solana).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='84'%3E%F0%9F%92%89%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    /* Dark / horror palette */
+    --bg:#0a0a0a; --bg2:#0c0a0a; --panel:#100d0ddd;
+    --text:#f2efed; --muted:#b9b3ae;
+    --accent:#ff2b2b; --accent-2:#b81818; /* blood red */
+    --ok:#67d27a; --danger:#ff4d4d;
+    --line:rgba(255,255,255,.06); --shadow:0 14px 40px rgba(0,0,0,.55);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(1200px 800px at 12% -30%, rgba(120,0,0,.25) 0%, transparent 60%),
+      radial-gradient(1200px 800px at 120% 130%, rgba(120,0,0,.18) 0%, transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    color:var(--text); -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  a{color:var(--accent); text-decoration:none}
+  .container{max-width:1150px; margin:0 auto; padding:18px}
+  header{position:sticky; top:0; z-index:40; backdrop-filter:blur(8px); background:linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.16)); border-bottom:1px solid var(--line)}
+  .nav{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0}
+  .brand{display:flex; gap:12px; align-items:center; font-weight:800}
+  .brand .logo-img{height:32px; width:auto; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.4)}
+  .navlinks{display:flex; gap:12px}
+  @media (max-width:900px){ .navlinks{display:none} }
+  .btn{display:inline-flex; gap:8px; align-items:center; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; border:1px solid var(--line); background:rgba(255,255,255,.03); color:inherit}
+  .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#1a0a0a; border:none}
+  .hero{display:grid; grid-template-columns:1.1fr .9fr; gap:22px; align-items:center; padding:36px 0; position:relative; overflow:hidden}
+  @media (max-width:900px){ .hero{grid-template-columns:1fr} .nav .controls{display:flex} }
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)}
+  h1{font-size:clamp(30px,5vw,56px); margin:0 0 8px}
+  .tagline{color:var(--muted); margin:0 0 12px}
+  .pill{border:1px dashed rgba(255,255,255,.05); padding:8px 10px; border-radius:10px}
+  .chip{background:rgba(255,0,0,.12); padding:6px 10px; border-radius:999px; font-size:13px; margin-right:8px}
+  .float{animation:float 5.5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(-2deg)}}
+
+  /* particles */
+  .particles{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+  .particle{position:absolute; width:6px; height:18px; border-radius:3px; opacity:.6; filter:blur(.3px); background:linear-gradient(180deg,#ff3b3b,#600)}
+  @keyframes drip { 0%{ transform:translateY(-10px); opacity:.2} 100%{ transform:translateY(120%); opacity:.8 } }
+
+  /* claw images floating in the scene */
+  .claw-scene{position:absolute; pointer-events:none; opacity:.85; width:140px; transform-origin:center; filter:drop-shadow(0 10px 18px rgba(0,0,0,.6)); mix-blend-mode:multiply}
+  .claw-scene.small{width:96px}
+  .claw-anim-1{left:6%; top:8%; animation:clawfloat 5s ease-in-out infinite}
+  .claw-anim-2{right:4%; top:22%; transform:scaleX(-1); animation:clawfloat 6s ease-in-out infinite}
+  .claw-anim-3{left:50%; top:56%; transform:translateX(-50%) rotate(-8deg); animation:clawfloat 7s ease-in-out infinite}
+  @keyframes clawfloat{0%{transform:translateY(-6px) rotate(-6deg)}50%{transform:translateY(6px) rotate(6deg)}100%{transform:translateY(-6px) rotate(-6deg)}}
+
+  /* sections & grid */
+  section{padding:18px 0}
+  .grid-cols{display:grid; gap:18px}
+  @media(min-width:900px){ .grid-cols.cols-12{grid-template-columns:repeat(12,1fr)} }
+  .col-6{grid-column:span 6}.col-8{grid-column:span 8}.col-4{grid-column:span 4}
+
+  /* Game UI */
+  #gamePanel{display:grid; gap:10px}
+  .scorebar{display:flex; gap:12px; align-items:center; justify-content:space-between}
+  .stat{display:flex; gap:8px; align-items:center}
+  .progress-thin{height:8px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden}
+  .progress-thin > i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+  .canvas-wrap{border-radius:10px; overflow:hidden; border:1px solid var(--line)}
+  #runnerCanvas{width:100%; height:360px; display:block; background:linear-gradient(180deg,#0c0b0b,#060505); touch-action: manipulation}
+
+  /* meme generator */
+  #memeCanvas{width:100%; height:auto; display:block; max-height:520px; border-radius:8px; background:#0e0d0c}
+
+  footer{margin:40px 0 80px; color:var(--muted); text-align:center}
+
+  /* small helpers */
+  .muted{color:var(--muted)}
+  input.kbd, .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; padding:8px; border-radius:8px; background:rgba(0,0,0,.28); border:1px solid var(--line); color:inherit}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+  /* helper image styles */
+  .hero-slogan{border-radius:12px; width:100%; max-width:720px; display:block; margin:12px auto 0; border:1px solid var(--line)}
+
+  /* mobile canvas sizing */
+  #runnerCanvas{ display:block; width:100vw; height:60vh; margin:0 auto; touch-action: manipulation; }
+</style>
+</head>
+<body>
+<header>
+  <div class="container nav" role="navigation" aria-label="Main navigation">
+    <div class="brand">
+      <img class="logo-img" src="img/logo.png" alt="FRDY Token Logo">
+      <div>
+        <div style="font-weight:900">FRDY <span style="opacity:.7;font-weight:600">| Freddy Krueger</span></div>
+        <div class="muted" style="font-size:12px">Nightmare memecoin</div>
+      </div>
+    </div>
+
+    <nav class="navlinks" aria-label="Sections">
+      <a href="#tokenomics" data-i18n="nav.tokenomics">Tokenomics</a>
+      <a href="#rockmap" data-i18n="nav.rockmap">Roadmap</a>
+      <a href="#howto" data-i18n="nav.howto">How to buy</a>
+      <a href="#play" data-i18n="nav.play">Play the Nightmare</a>
+      <a href="#meme" data-i18n="nav.meme">Meme Generator</a>
+      <a href="#community" data-i18n="nav.community">Community</a>
+    </nav>
+
+    <div class="controls row" style="align-items:center">
+      <select id="langSelect" class="kbd" aria-label="Language selector">
+        <option value="en">English</option>
+        <option value="pt">Português</option>
+      </select>
+      <a class="btn primary" href="#howto" id="buyBtn" data-i18n="cta.buy">Buy FRDY</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="panel" style="position:relative; overflow:hidden">
+      <div id="particles" class="particles" aria-hidden="true"></div>
+
+      <!-- floating claw images in scene (visible, animated) -->
+      <img src="img/garras.png" alt="" class="claw-scene claw-anim-1" aria-hidden="true">
+      <img src="img/garras.png" alt="" class="claw-scene claw-anim-2 small" aria-hidden="true">
+      <img src="img/garras.png" alt="" class="claw-scene claw-anim-3" aria-hidden="true">
+
+      <h1 data-i18n="hero.title">“Dream on it… if you dare.” 😈🌑</h1>
+      <p class="tagline" data-i18n="hero.subtitle">A nightmare memecoin for the Crypto Era. <strong>1 Billion FRDY</strong> etched in fear. <strong>Community &gt; Technology</strong>.</p>
+      <div class="row" style="margin-top:8px">
+        <div class="pill" data-i18n="hero.p1">🩸 Horror-themed memes</div>
+        <div class="pill" data-i18n="hero.p2">🧤 Razor-sharp community</div>
+        <div class="pill" data-i18n="hero.p3">🔥 Fair launch</div>
+      </div>
+
+      <div style="margin-top:14px" class="panel">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input id="mint" class="kbd" value="SoLaNaMockMint11111111111111111111111111111" aria-label="Solana token mint (mock)" style="min-width:260px">
+          <button id="copyMint" class="btn">Copy mint</button>
+          <button id="viewExplorer" class="btn primary">View on Explorer</button>
+        </div>
+        <div style="margin-top:8px" class="muted">Mock mint for Solana network — replace with your real token mint once available.</div>
+      </div>
+
+      <!-- Slogan visual pedido -->
+      <img src="img/krueger-slogan.png" alt="your worst nightmare will be not buying" class="hero-slogan">
+    </div>
+
+    <div class="panel">
+      <div class="float" aria-hidden="true" style="display:flex;align-items:center;justify-content:center">
+        <img src="img/freddy.png" alt="Freddy figure" style="max-width:100%; border-radius:12px; display:block"/>
+      </div>
+      <div style="margin-top:12px" class="muted">
+        Community &gt; Technology — be kind, create memes (and fear).
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TOKENOMICS -->
+  <section id="tokenomics">
+    <h2 data-i18n="tokenomics.title">Tokenomics</h2>
+    <div class="grid-cols cols-12" style="display:grid; grid-template-columns: 1fr 1fr; gap:18px">
+      <div class="panel">
+        <div class="row"><div class="muted">Total supply</div><div style="margin-left:auto" class="kbd">1,000,000,000 FRDY</div></div>
+        <div class="row" style="margin-top:8px"><div class="muted">Buy / Sell fee</div><div style="margin-left:auto" class="kbd">0% / 0%</div></div>
+        <div class="row" style="margin-top:8px"><div class="muted">Network</div><div style="margin-left:auto" class="kbd">Solana</div></div>
+        <div class="row" style="margin-top:8px"><div class="muted">Mint (mock)</div><div style="margin-left:auto" class="kbd" id="mintDisplay">SoLaNaMockMint11111111111111111111111111111</div></div>
+      </div>
+      <div class="panel">
+        <div class="muted">Distribution</div>
+        <div style="margin-top:10px">
+          <div class="muted row"><div>DEX Liquidity</div><div style="margin-left:auto">60%</div></div>
+          <div class="progress-thin" style="margin:8px 0"><i style="width:60%"></i></div>
+          <div class="muted row"><div>Community & Airdrop</div><div style="margin-left:auto">20%</div></div>
+          <div class="progress-thin" style="margin:8px 0"><i style="width:20%"></i></div>
+          <div class="muted row"><div>Partnerships</div><div style="margin-left:auto">10%</div></div>
+          <div class="progress-thin" style="margin:8px 0"><i style="width:10%"></i></div>
+          <div class="muted row"><div>Treasury</div><div style="margin-left:auto">10%</div></div>
+          <div class="progress-thin" style="margin:8px 0"><i style="width:10%"></i></div>
+        </div>
+        <div class="muted" style="margin-top:10px">Ownership renounced • Liquidity lock: planned</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="rockmap">
+    <h2 data-i18n="rockmap.title">Roadmap</h2>
+    <div class="grid-cols cols-12" style="display:grid; grid-template-columns:2fr 1fr; gap:18px">
+      <div class="panel">
+        <ul>
+          <li>✅ <strong>Phase 1 — Awakening</strong>: site, mock mint, fair-launch, lock initial liquidity.</li>
+          <li>🚧 <strong>Phase 2 — Dreams</strong>: trackers, airdrop, meme contests.</li>
+          <li>🧗 <strong>Phase 3 — Nightmares</strong>: creator collabs, Nightmare Pass NFTs.</li>
+          <li>🌕 <strong>Phase 4 — Moonlit Street</strong>: selected CEX listings, IRL meetups.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="badge">Audit: pending</div>
+        <div class="muted" style="margin-top:8px">Audits increase safety but do not remove all risks. DYOR.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO BUY -->
+  <section id="howto">
+    <h2 data-i18n="howto.title">How to buy (Solana)</h2>
+    <div class="grid-cols cols-12" style="display:grid; grid-template-columns:1fr 1fr; gap:18px">
+      <div class="panel">
+        <ol>
+          <li data-i18n="howto.step1">Install a Solana wallet (Phantom, Solflare).</li>
+          <li data-i18n="howto.step2">Fund it with SOL for fees.</li>
+          <li data-i18n="howto.step3">Use a Solana DEX (Raydium, Jupiter) and add the token mint.</li>
+          <li data-i18n="howto.step4">Set slippage (0.5–2%) and swap — be careful.</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <div class="muted">Useful links (replace with real)</div>
+        <div style="margin-top:8px" class="row">
+          <a class="btn" id="dexLink" href="#" target="_blank">Open DEX</a>
+          <a class="btn" id="explorerLink" href="#" target="_blank">Token Explorer</a>
+        </div>
+        <div class="muted" style="margin-top:8px">This website is informational and not financial advice. Never invest more than you can lose.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY THE GAME -->
+  <section id="play">
+    <h2 data-i18n="play.title">Play the Nightmare Runner</h2>
+    <div id="gamePanel" class="panel">
+      <div class="scorebar">
+        <div class="stat">😈 <strong id="playerName">Freddy</strong></div>
+        <div class="stat">Shards: <b id="stonesCount">0</b></div>
+        <div class="stat">FRDY (sim): <b id="tokensBalance">0</b></div>
+        <div style="margin-left:auto" class="row">
+          <button id="convertBtn" class="btn">Convert Shards → FRDY</button>
+          <button id="resetRun" class="btn">Reset</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" aria-hidden="false" style="margin-top:12px">
+        <canvas id="runnerCanvas" width="1200" height="480" aria-label="Nightmare Runner game"></canvas>
+      </div>
+
+      <div style="margin-top:8px" class="muted">Collect <b>tokens</b> (logo) while avoiding lethal traps. Shards = coins. Convert shards into simulated FRDY tokens (UI only).</div>
+    </div>
+  </section>
+
+  <!-- MEME GENERATOR -->
+  <section id="meme">
+    <h2 data-i18n="meme.title">Meme Generator</h2>
+    <div class="grid-cols" style="display:grid; grid-template-columns:1fr 1fr; gap:18px">
+      <div class="panel">
+        <div class="row">
+          <input id="memeFile" type="file" accept="image/*" class="kbd" />
+          <input id="topText" placeholder="Top text" class="kbd" />
+          <input id="bottomText" placeholder="Bottom text" class="kbd" />
+          <button id="downloadMeme" class="btn primary">Download Meme</button>
+        </div>
+      </div>
+      <div class="panel" style="display:flex;align-items:center;justify-content:center">
+        <canvas id="memeCanvas" width="720" height="720" aria-label="Meme preview"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section id="community">
+    <h2 data-i18n="community.title">Community</h2>
+    <div class="panel row">
+      <a class="btn" href="https://x.com/" target="_blank">X (Twitter)</a>
+      <a class="btn" href="https://t.me/" target="_blank">Telegram</a>
+      <a class="btn" href="https://discord.gg/" target="_blank">Discord</a>
+      <a class="btn" href="mailto:team@frdy.org">Contact</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="muted">© <span id="year"></span> FRDY — Freddy Krueger parody / meme project — not affiliated with any trademarked characters.</div>
+  </footer>
+</main>
+
+<script>
+/* ========= Localization strings ========= */
+const LOCALES = {
+  en: {
+    nav: { tokenomics: "Tokenomics", rockmap: "Roadmap", howto: "How to buy", play: "Play the Nightmare", meme: "Meme Generator", community: "Community" },
+    cta: { buy: "Buy FRDY" },
+    hero: { title: "\"Dream on it...if you dare.\" 😈🌑", subtitle: "A nightmare memecoin for the Crypto Era. 1 Billion FRDY etched in fear. Community > Technology.", p1:"🩸 Horror-themed memes", p2:"🧤 Razor-sharp community", p3:"🔥 Fair launch" },
+    tokenomics: { title: "Tokenomics" },
+    rockmap: { title: "Roadmap" },
+    howto: { title: "How to buy (Solana)", step1: "Install a Solana wallet (Phantom, Solflare).", step2: "Fund it with SOL for fees.", step3: "Use a Solana DEX (Raydium, Jupiter) and add the token mint.", step4: "Set slippage and swap — be careful." },
+    play: { title: "Play the Nightmare Runner" },
+    meme: { title: "Meme Generator" },
+    community: { title: "Community" }
+  },
+  pt: {
+    nav: { tokenomics: "Tokenomics", rockmap: "Roadmap", howto: "Como comprar", play: "Jogar o Pesadelo", meme: "Gerador de Meme", community: "Comunidade" },
+    cta: { buy: "Comprar FRDY" },
+    hero: { title: "\"Sonhe com isso… se tiver coragem.\" 😈🌑", subtitle: "O memecoin dos pesadelos para a Era Cripto. 1 Bilhão de FRDY gravados no medo. Comunidade > Tecnologia.", p1:"🩸 Memes de horror", p2:"🧤 Comunidade afiada", p3:"🔥 Lançamento justo" },
+    tokenomics: { title: "Tokenomics" },
+    rockmap: { title: "Roadmap" },
+    howto: { title: "Como comprar (Solana)", step1: "Instale uma carteira Solana (Phantom, Solflare).", step2: "Carregue com SOL para as taxas.", step3: "Use um DEX (Raydium, Jupiter) e adicione o mint do token.", step4: "Ajuste slippage e troque — tenha cuidado." },
+    play: { title: "Jogar o Nightmare Runner" },
+    meme: { title: "Gerador de Meme" },
+    community: { title: "Comunidade" }
+  }
+};
+
+/* ========= Utilities ========= */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+/* ========= Language handling ========= */
+const langSelect = $('#langSelect');
+let lang = localStorage.getItem('frdy_lang') || 'en';
+langSelect.value = lang;
+document.documentElement.setAttribute('data-lang', lang);
+function applyLocale(l){
+  const pack = LOCALES[l] || LOCALES.en;
+  $$('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    const path = key.split('.');
+    let v = pack;
+    for(const p of path){ v = v?.[p]; if(v===undefined) break; }
+    if(v!==undefined) el.textContent = v;
+  });
+  document.querySelectorAll('h2[data-i18n]').forEach(h=>{
+    const key = h.getAttribute('data-i18n').split('.');
+    let v = pack;
+    for(const p of key){ v = v?.[p]; if(v===undefined) break; }
+    if(v!==undefined) h.textContent = v;
+  });
+  $('#howto').querySelectorAll('ol li').forEach((li,i)=>{
+    const stepKey = `step${i+1}`;
+    const v = pack.howto[stepKey];
+    if(v) li.textContent = v;
+  });
+  $('#buyBtn').textContent = pack.cta.buy;
+  document.documentElement.setAttribute('data-lang', l);
+}
+applyLocale(lang);
+langSelect.addEventListener('change', e=>{
+  lang = e.target.value;
+  localStorage.setItem('frdy_lang', lang);
+  applyLocale(lang);
+});
+
+/* ========= Blood particles in hero ========= */
+(function particles(){
+  const box = $('#particles');
+  if(!box) return;
+  const n = 26;
+  for(let i=0;i<n;i++){
+    const el = document.createElement('i'); el.className = 'particle';
+    const left = (Math.random()*100)+'%';
+    const delay = (Math.random()*2)+'s';
+    const dur = (4 + Math.random()*6)+'s';
+    el.style.left = left; el.style.animation = `drip ${dur} linear ${delay} infinite`;
+    box.appendChild(el);
+  }
+
+  // Also add a couple of animated claw images as requested
+  try {
+    const claw1 = document.createElement('img');
+    claw1.src = 'img/garras.png'; claw1.className = 'claw-scene'; claw1.style.left = '8%'; claw1.style.top = '12%'; claw1.setAttribute('aria-hidden','true'); box.appendChild(claw1);
+    const claw2 = document.createElement('img');
+    claw2.src = 'img/garras.png'; claw2.className = 'claw-scene small'; claw2.style.right = '6%'; claw2.style.top = '24%'; claw2.style.transform = 'scaleX(-1)'; claw2.setAttribute('aria-hidden','true'); box.appendChild(claw2);
+  } catch(e){ /* ignore if images missing */ }
+})();
+
+/* ========= Copy mint & explorer (mock behavior) ========= */
+$('#copyMint').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText($('#mint').value); $('#copyMint').textContent = 'Copied!'; setTimeout(()=>$('#copyMint').textContent='Copy mint',1200); }
+  catch(e){ alert('Copy failed'); }
+});
+$('#viewExplorer').addEventListener('click', ()=>{
+  const mint = $('#mint').value;
+  const url = `https://explorer.solana.com/address/${encodeURIComponent(mint)}?cluster=devnet`;
+  window.open(url,'_blank');
+});
+$('#dexLink').addEventListener('click', ()=> window.open('https://jup.ag/','_blank'));
+$('#explorerLink').addEventListener('click', ()=> window.open('https://explorer.solana.com','_blank'));
+
+/* ========= Meme generator (canvas) ========= */
+(function memeGen(){
+  const file = $('#memeFile'), top = $('#topText'), bottom = $('#bottomText'), canvas = $('#memeCanvas'), ctx = canvas.getContext('2d'), dl = $('#downloadMeme');
+  let img = new Image();
+  function draw(){
+    ctx.fillStyle = '#0b0a0a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const pad = 12;
+    if(img && img.naturalWidth){
+      const scale = Math.min((canvas.width-2*pad)/img.naturalWidth, (canvas.height-2*pad)/img.naturalHeight);
+      const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+      const x = (canvas.width - w)/2, y = (canvas.height - h)/2;
+      ctx.drawImage(img, x, y, w, h);
+    } else {
+      ctx.fillStyle = '#120f0f'; ctx.fillRect(pad,pad,canvas.width-2*pad, canvas.height-2*pad);
+      ctx.fillStyle = '#ddd'; ctx.font = '600 20px system-ui'; ctx.textAlign='center';
+      ctx.fillText('Choose an image to create a meme', canvas.width/2, canvas.height/2);
+    }
+    // texts (horror outline)
+    ctx.textAlign='center'; ctx.lineJoin='round'; ctx.strokeStyle='#000';
+    const drawLines = (text, yStart)=>{
+      const lines = (text||'').toUpperCase().split('\n').slice(0,4);
+      lines.forEach((ln,i)=>{
+        const size = 48 - i*6;
+        ctx.font = `900 ${size}px Impact, system-ui, sans-serif`;
+        ctx.lineWidth = Math.max(6, size/12);
+        ctx.strokeText(ln, canvas.width/2, yStart + i*size);
+        ctx.fillStyle = '#fff'; ctx.fillText(ln, canvas.width/2, yStart + i*size);
+      });
+    };
+    drawLines(top.value, 64);
+    drawLines(bottom.value, canvas.height - 140);
+  }
+  file.addEventListener('change', e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    img.onload = ()=>{ draw(); URL.revokeObjectURL(url); };
+    img.src = url;
+  });
+  top.addEventListener('input', draw); bottom.addEventListener('input', draw);
+  dl.addEventListener('click', ()=>{
+    draw();
+    const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = 'frdy-meme.png'; a.click();
+  });
+  draw();
+})();
+
+/* ========= Nightmare Runner (Freddy reskin) with blood & fatality ========= */
+(function runner(){
+  const canvas = $('#runnerCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // responsive resize: use boundingClientRect and devicePixelRatio so canvas renders crisply on mobile
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    let w = rect.width || canvas.clientWidth || document.querySelector('.canvas-wrap').clientWidth || window.innerWidth;
+    let h = Math.max(260, Math.min(520, window.innerHeight * 0.45));
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(w * ratio);
+    canvas.height = Math.floor(h * ratio);
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    if(state) { state.groundY = Math.floor(h - 80); }
+  }
+  window.addEventListener('resize', resize);
+
+  // assets
+  const fredImg = new Image(); fredImg.src = 'img/sprite.png'; // 4 frames horizontal (player)
+  const coinImg = new Image(); coinImg.src = 'img/token.png';
+  const enemyImg = new Image(); enemyImg.src = 'img/enemy.png'; // zumbi (replaces cactus)
+  const knifeImg = new Image(); knifeImg.src = 'img/faca.png'; // faca que cai (lethal)
+  const clawImg = new Image(); clawImg.src = 'img/garras.png'; // projétil
+  const bloodImg = new Image(); bloodImg.src = 'img/blood.png'; // splash
+  const fatalityImg = new Image(); fatalityImg.src = 'img/fatality.png'; // fase up
+
+  // state
+  const state = {
+    player: { x: 120, y: 0, w: 64, h: 64, vy:0, onGround:true },
+    anim: { cols: 4, frame: 0, t: 0, fps: 10, fw: 64, fh: 64 },
+    groundY: 0,
+    obstacles: [], // razors & zombies (moving left)
+    knives: [],    // falling lethal knives (type: 'knife')
+    stones: [],    // collectible tokens
+    projectiles: [], // claws fired by player
+    speed: 220, baseSpeed: 220, spawnTimer: 0, spawnInterval: 1.2, stoneTimer: 0,
+    knifeTimer: 2.5,
+    stonesCollected: Number(localStorage.getItem('frdy_shards')||0),
+    tokens: Number(localStorage.getItem('frdy_tokens')||0),
+    runStones: 0, bestRun: Number(localStorage.getItem('frdy_best_run')||0),
+    level: 1, hp: 2, last: 0, running: true, gameOver: false,
+    bloodEffects: [], // {x,y,ttl,scale,angle}
+    showFatality: false, fatalityTimer: 0
+  };
+
+  // UI refs
+  const stonesCount = $('#stonesCount');
+  const tokensBalance = $('#tokensBalance');
+  const convertBtn = $('#convertBtn');
+  const resetRun = $('#resetRun');
+  stonesCount.textContent = state.stonesCollected;
+  tokensBalance.textContent = state.tokens;
+
+  // physics
+  const GRAV = 1200; const JUMP_V = -520;
+
+  function updateDifficulty(){
+    const newLevel = Math.floor(state.runStones / 25) + 1;
+    if(newLevel !== state.level){
+      state.level = newLevel;
+      state.baseSpeed = 220 + (state.level-1) * 12;
+      state.spawnInterval = Math.max(0.75, 2 - (state.level-1)*0.04);
+    }
+  }
+
+  // spawn ground obstacles: razors and zombies
+  function spawnObstacle(){
+    const r = Math.random();
+    let type = 'zombie'; // default replaced cactus -> zombie
+    if(r > 0.85) type = 'razor';
+    if(!state.groundY){
+      const rect = canvas.getBoundingClientRect();
+      state.groundY = rect.height ? rect.height - 80 : canvas.height / (window.devicePixelRatio || 1) - 80;
+    }
+    if(type === 'zombie'){
+      const w = 48 + Math.random()*24;
+      const h = 48 + Math.random()*16;
+      const y = state.groundY - h;
+      state.obstacles.push({ type, x: (canvas.width / (window.devicePixelRatio || 1)) + 40, y, w, h, vx: -state.speed });
+    } else if(type === 'razor'){
+      const h = 18 + Math.random()*16; const w = 12 + Math.random()*10;
+      const y = state.groundY - h;
+      state.obstacles.push({ type, x: (canvas.width / (window.devicePixelRatio || 1)) + 40, y, w, h, vx: -state.speed*1.05 });
+    }
+  }
+
+  // spawn falling knife (replaces pit)
+  function spawnKnife(){
+    const w = 36, h = 36;
+    const x = 40 + Math.random() * ((canvas.width / (window.devicePixelRatio || 1)) - 80);
+    const y = -60;
+    const vy = 420 + Math.random() * 160; // px/s downward speed
+    state.knives.push({ type: 'knife', x, y, w, h, vy });
+  }
+
+  function spawnStone(){
+    const size = 18 + Math.random()*10;
+    const y = state.groundY - 80 - Math.random()*120;
+    state.stones.push({ x: (canvas.width / (window.devicePixelRatio || 1)) + 40, y, r: size, vx: -state.speed*0.9 });
+  }
+
+  // attack (shoot a claw)
+  function shootClaw(){
+    if(state.gameOver) return;
+    const startX = state.player.x + state.player.w + 6;
+    const startY = state.player.y + state.player.h/2;
+    const speed = 780; // px/s
+    state.projectiles.push({ x: startX, y: startY, w: 34, h: 18, vx: speed });
+  }
+
+  function tryJumpOrRestart(){
+    if(state.gameOver){ restartRun(); }
+    else if(state.player.onGround){ state.player.vy = JUMP_V; state.player.onGround = false; }
+  }
+
+  // input handlers: space/up jump, A attack; click/tap single -> jump / double -> attack
+  let lastTouch = 0;
+  window.addEventListener('keydown', e=>{
+    if(e.code==='Space' || e.code==='ArrowUp'){ e.preventDefault(); tryJumpOrRestart(); }
+    else if(e.code==='KeyA'){ e.preventDefault(); shootClaw(); }
+  });
+
+  canvas.addEventListener('click', (ev)=>{ tryJumpOrRestart(); });
+  canvas.addEventListener('dblclick', (ev)=>{ ev.preventDefault(); shootClaw(); });
+
+  canvas.addEventListener('touchstart', (ev)=>{
+    const now = Date.now();
+    if(now - lastTouch < 300){
+      shootClaw();
+      lastTouch = 0;
+    } else {
+      tryJumpOrRestart();
+      lastTouch = now;
+    }
+  }, {passive: true});
+
+  function rectIntersect(a,b){ return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h); }
+  function circleRectIntersect(cx,cy,r,rect){ const nx = Math.max(rect.x, Math.min(cx, rect.x + rect.w)); const ny = Math.max(rect.y, Math.min(cy, rect.y + rect.h)); const dx = cx - nx, dy = cy - ny; return (dx*dx + dy*dy) <= (r*r); }
+
+  function createBlood(x,y){
+    state.bloodEffects.push({
+      x, y,
+      ttl: 26 + Math.floor(Math.random()*12),
+      scale: 0.8 + Math.random()*0.8,
+      rot: (Math.random()-0.5)*0.8
+    });
+  }
+
+  function die(){
+    if(state.gameOver) return;
+    state.gameOver = true; state.running = false;
+    if(state.runStones>0){
+      state.stonesCollected = Math.max(0, state.stonesCollected - state.runStones);
+      localStorage.setItem('frdy_shards', state.stonesCollected);
+      stonesCount.textContent = state.stonesCollected;
+    }
+    if(state.runStones > state.bestRun){
+      state.bestRun = state.runStones;
+      localStorage.setItem('frdy_best_run', state.bestRun);
+    }
+  }
+
+  function restartRun(){
+    state.obstacles.length = 0; state.knives.length = 0; state.stones.length = 0; state.projectiles.length = 0; state.bloodEffects.length = 0;
+    state.speed = 220; state.baseSpeed = 220; state.spawnInterval = 1.2; state.level = 1; state.runStones = 0; state.hp = 2;
+    const rect = canvas.getBoundingClientRect();
+    state.groundY = rect.height ? rect.height - 80 : state.groundY;
+    state.player.y = state.groundY - state.player.h; state.player.vy = 0; state.player.onGround = true;
+    state.last = performance.now(); state.running = true; state.gameOver = false;
+  }
+
+  function update(t){
+    if(!state.last) state.last = t;
+    const dt = Math.min(0.033, (t - state.last)/1000);
+    state.last = t;
+
+    if(!state.running){ render(); requestAnimationFrame(update); return; }
+
+    state.anim.t += dt; if(state.anim.t >= 1/state.anim.fps){ state.anim.t = 0; state.anim.frame = (state.anim.frame + 1) % state.anim.cols; }
+
+    state.spawnTimer -= dt; state.stoneTimer -= dt; state.knifeTimer -= dt;
+    if(state.spawnTimer <= 0){ spawnObstacle(); state.spawnTimer = state.spawnInterval * (0.7 + Math.random()*0.6); }
+    if(state.stoneTimer <= 0){ spawnStone(); state.stoneTimer = 0.8 + Math.random()*1.6; }
+    if(state.knifeTimer <= 0){ spawnKnife(); state.knifeTimer = 1.6 + Math.random()*2.4; }
+
+    state.player.vy += GRAV * dt; state.player.y += state.player.vy * dt;
+    if(!state.groundY){
+      const rect = canvas.getBoundingClientRect();
+      state.groundY = rect.height ? rect.height - 80 : (canvas.height / (window.devicePixelRatio || 1) - 80);
+    }
+    if(state.player.y + state.player.h >= state.groundY){ state.player.y = state.groundY - state.player.h; state.player.vy = 0; state.player.onGround = true; }
+
+    for(const o of state.obstacles) o.x += o.vx * dt;
+    for(const s of state.stones) s.x += s.vx * dt;
+    for(const k of state.knives) k.y += k.vy * dt;
+    for(const p of state.projectiles) p.x += p.vx * dt;
+
+    const screenLeft = -120;
+    state.obstacles = state.obstacles.filter(o=> o.x + o.w > screenLeft );
+    state.stones = state.stones.filter(s=> s.x + s.r > screenLeft );
+    state.knives = state.knives.filter(k=> k.y < (canvas.height / (window.devicePixelRatio || 1) + 200));
+    state.projectiles = state.projectiles.filter(p=> p.x < (canvas.width / (window.devicePixelRatio || 1) + 200));
+
+    const pRect = {x: state.player.x, y: state.player.y, w: state.player.w, h: state.player.h};
+
+    // obstacles collisions
+    for(let oi = state.obstacles.length - 1; oi >= 0; oi--){
+      const o = state.obstacles[oi];
+      if(o.type === 'zombie'){
+        if(rectIntersect(pRect, o)){
+          state.hp -= 1;
+          state.obstacles.splice(oi,1);
+          createBlood(o.x, o.y + (o.h/4));
+          if(state.hp <= 0){ die(); break; }
+        }
+      } else if(o.type === 'razor'){
+        if(rectIntersect(pRect, o)){ state.hp -= 1; if(state.hp <= 0){ die(); break; } o.x = -999; }
+      }
+    }
+
+    // knives: falling lethal traps
+    for(let ki = state.knives.length - 1; ki >= 0; ki--){
+      const k = state.knives[ki];
+      const kRect = { x: k.x, y: k.y, w: k.w, h: k.h };
+      if(rectIntersect(pRect, kRect)){
+        die(); break;
+      }
+    }
+
+    // collect stones (coins)
+    for(let i = state.stones.length-1; i>=0; i--){
+      const s = state.stones[i];
+      if(circleRectIntersect(s.x, s.y, s.r, pRect)){
+        state.stonesCollected += 1; state.runStones += 1; localStorage.setItem('frdy_shards', state.stonesCollected); state.stones.splice(i,1); stonesCount.textContent = state.stonesCollected; state.speed = Math.min(520, state.speed + 8);
+        // show fatality on multiples of 10 shards (pass of phase)
+        if(state.runStones % 10 === 0){
+          state.showFatality = true; state.fatalityTimer = 120;
+        }
+      }
+    }
+
+    // projectiles vs zombies
+    for(let pi = state.projectiles.length - 1; pi >= 0; pi--){
+      const pr = state.projectiles[pi];
+      let hit = false;
+      for(let oi = state.obstacles.length - 1; oi >= 0; oi--){
+        const o = state.obstacles[oi];
+        if(o.type === 'zombie'){
+          const oRect = {x: o.x, y: o.y, w: o.w, h: o.h};
+          const pRectProj = {x: pr.x, y: pr.y - pr.h/2, w: pr.w, h: pr.h};
+          if(rectIntersect(pRectProj, oRect)){
+            // kill zombie
+            createBlood(o.x, o.y + (o.h/4));
+            state.obstacles.splice(oi,1);
+            hit = true;
+            // reward slightly (counts toward runStones)
+            state.runStones += 1;
+            // show fatality if crosses multiple of 10
+            if(state.runStones % 10 === 0){
+              state.showFatality = true; state.fatalityTimer = 120;
+            }
+            break;
+          }
+        }
+      }
+      if(hit){
+        state.projectiles.splice(pi,1);
+      }
+    }
+
+    // update blood effects
+    for(let bi = state.bloodEffects.length - 1; bi >= 0; bi--){
+      const b = state.bloodEffects[bi];
+      b.ttl--;
+      if(b.ttl <= 0) state.bloodEffects.splice(bi,1);
+    }
+
+    updateDifficulty();
+    state.speed += (state.baseSpeed - state.speed) * dt * 0.25;
+
+    render();
+    requestAnimationFrame(update);
+  }
+
+  function render(){
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    ctx.clearRect(0,0,w,h);
+    const g = ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#0b0a0a'); g.addColorStop(1,'#050404'); ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    const gY = state.groundY || (h - 80); ctx.fillStyle = '#120a0a'; ctx.fillRect(0, gY, w, h - gY);
+    for(let i=0;i<w;i+=48){ ctx.fillStyle = '#2b1515'; ctx.beginPath(); ctx.ellipse(i + (state.last/50)%48, gY + 18, 14, 10, 0, 0, Math.PI*2); ctx.fill(); }
+
+    // obstacles
+    for(const o of state.obstacles){
+      if(o.type === 'zombie'){
+        if(enemyImg.complete && enemyImg.naturalWidth){
+          ctx.drawImage(enemyImg, 0, 0, enemyImg.naturalWidth, enemyImg.naturalHeight, o.x, o.y, o.w, o.h);
+        } else {
+          ctx.fillStyle = '#4b7a4b'; ctx.fillRect(o.x, o.y, o.w, o.h);
+        }
+      } else if(o.type === 'razor'){
+        ctx.fillStyle = '#c0c0c0'; ctx.fillRect(o.x + o.w*0.35, o.y, o.w*0.3, o.h);
+        ctx.fillStyle = '#6b2b2b'; ctx.fillRect(o.x, o.y + o.h*0.45, o.w*0.35, 10);
+        ctx.fillRect(o.x + o.w*0.65, o.y + o.h*0.30, o.w*0.35, 10);
+      }
+    }
+
+    // knives
+    for(const k of state.knives){
+      if(knifeImg.complete && knifeImg.naturalWidth){
+        ctx.drawImage(knifeImg, k.x, k.y, k.w, k.h);
+      } else {
+        ctx.fillStyle = '#999'; ctx.fillRect(k.x, k.y, k.w, k.h);
+      }
+    }
+
+    // stones
+    for(const s of state.stones){
+      const size = s.r*2;
+      ctx.save();
+      ctx.translate(s.x - size/2, s.y - size/2);
+      if(coinImg.complete && coinImg.naturalWidth) { ctx.drawImage(coinImg, 0, 0, size, size); }
+      else { ctx.fillStyle = 'goldenrod'; ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    }
+
+    // player
+    const p = state.player, a = state.anim;
+    ctx.save();
+    const fw = (fredImg.complete && fredImg.naturalWidth) ? (fredImg.naturalWidth / a.cols) : a.fw;
+    const fh = (fredImg.complete && fredImg.naturalHeight) ? fredImg.naturalHeight : a.fh;
+    const sx = a.frame * fw, sy = 0;
+    if(fredImg.complete && fredImg.naturalWidth){
+      ctx.drawImage(fredImg, sx, sy, fw, fh, p.x, p.y, p.w, p.h);
+    } else {
+      ctx.fillStyle = '#b81818'; ctx.fillRect(p.x, p.y, p.w, p.h);
+    }
+    ctx.restore();
+
+    // projectiles
+    for(const pr of state.projectiles){
+      if(clawImg.complete && clawImg.naturalWidth){
+        ctx.drawImage(clawImg, pr.x, pr.y - pr.h/2, pr.w, pr.h);
+      } else {
+        ctx.fillStyle = '#ff2b2b'; ctx.fillRect(pr.x, pr.y - pr.h/2, pr.w, pr.h);
+      }
+    }
+
+    // blood splashes
+    for(const b of state.bloodEffects){
+      if(bloodImg.complete && bloodImg.naturalWidth){
+        ctx.save();
+        ctx.translate(b.x + 20, b.y + 20);
+        ctx.rotate(b.rot);
+        const size = 48 * b.scale;
+        ctx.drawImage(bloodImg, -size/2, -size/2, size, size);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = 'rgba(180,0,0,0.9)';
+        ctx.beginPath(); ctx.ellipse(b.x+20, b.y+20, 18*b.scale, 12*b.scale, 0, 0, Math.PI*2); ctx.fill();
+      }
+    }
+
+    // HUD
+    ctx.fillStyle = '#ddd'; ctx.font = '600 14px system-ui'; ctx.textAlign='left';
+    ctx.fillText('Speed: ' + Math.round(state.speed) + ' px/s', 90, 28);
+    ctx.fillText('Level: ' + state.level, 90, 48);
+    ctx.fillText('Best run: ' + state.bestRun, 90, 68);
+    ctx.fillText('HP: ' + state.hp, 90, 88);
+
+    // fatality overlay when triggered
+    if(state.showFatality){
+      const fW = 300, fH = 140;
+      const cx = (w - fW)/2, cy = (h - fH)/2;
+      if(fatalityImg.complete && fatalityImg.naturalWidth){
+        ctx.drawImage(fatalityImg, cx, cy, fW, fH);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fillRect(cx, cy, fW, fH);
+        ctx.fillStyle = '#fff'; ctx.textAlign='center'; ctx.font='700 28px system-ui'; ctx.fillText('FATALITY', w/2, cy + fH/2 + 10);
+      }
+      state.fatalityTimer--;
+      if(state.fatalityTimer <= 0) state.showFatality = false;
+    }
+
+    if(state.gameOver){
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,w,h);
+      ctx.fillStyle = '#fff'; ctx.textAlign='center'; ctx.font = 'bold 42px system-ui'; ctx.fillText('GAME OVER', w/2, h/2 - 10);
+      ctx.font = '600 18px system-ui'; ctx.fillText(`Shards lost this run: ${state.runStones}`, w/2, h/2 + 22); ctx.fillText('Press SPACE / TAP to restart', w/2, h/2 + 50);
+    }
+  }
+
+  convertBtn.addEventListener('click', ()=>{
+    const rate = 5;
+    if(state.stonesCollected < rate){ alert('Not enough shards to convert.'); return; }
+    const coins = Math.floor(state.stonesCollected / rate);
+    state.tokens += coins;
+    state.stonesCollected -= coins * rate;
+    localStorage.setItem('frdy_tokens', state.tokens);
+    localStorage.setItem('frdy_shards', state.stonesCollected);
+    stonesCount.textContent = state.stonesCollected;
+    tokensBalance.textContent = state.tokens;
+  });
+
+  resetRun.addEventListener('click', ()=>{
+    if(confirm('Reset run progress (shards & tokens saved separately)?')){
+      state.stonesCollected = 0; state.tokens = 0; state.runStones = 0; state.bestRun = 0;
+      localStorage.removeItem('frdy_shards'); localStorage.removeItem('frdy_tokens'); localStorage.removeItem('frdy_best_run');
+      stonesCount.textContent = 0; tokensBalance.textContent = 0;
+      state.obstacles=[]; state.knives=[]; state.stones=[]; state.projectiles=[]; state.bloodEffects=[];
+      state.speed=220; state.baseSpeed=220; state.level=1; state.spawnInterval=1.2; state.hp=2;
+    }
+  });
+
+  // initial resize & start loop
+  resize();
+  const rect = canvas.getBoundingClientRect();
+  state.groundY = rect.height ? rect.height - 80 : (canvas.height / (window.devicePixelRatio || 1) - 80);
+  state.player.y = state.groundY - state.player.h;
+  state.player.onGround = true;
+  requestAnimationFrame(update);
+})();
+
+/* ========= small helpers & year ========= */
+$('#year').textContent = new Date().getFullYear();
+
+/* ========= Smooth in-page anchors ========= */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const id = a.getAttribute('href').substring(1);
+    const el = document.getElementById(id);
+    if(el){
+      e.preventDefault();
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+      el.focus({preventScroll:true});
+    }
+  });
+});
+</script>
+</body>
+</html>
